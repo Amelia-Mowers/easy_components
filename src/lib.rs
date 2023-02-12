@@ -5,17 +5,13 @@ macro_rules! implement_trait_and_macro_for_component{
     (
         $component_struct_name:ident,
         $new_trait_vis:vis $new_trait_name:ident,
-        // $(($($sub_type:ident, $sub_type_label:ident),* ),)?
         $macro_name:ident
         $(, $method_name:ident($self:ty$(, $par:ident: $type:ty)*))
-        // $(, $method_name:ident($self:ty$(($($sub_type_label_ref:ident),*))?$(, $par:ident: $type:ty)*))
         *
     ) => {
-        // $new_trait_vis trait $new_trait_name$(: $($sub_type +)*)? {
         $new_trait_vis trait $new_trait_name {
             $(
                 fn $method_name(&self$(, $par: $type)*);
-                // fn $method_name(&self$(, $par: $type)*);
             )*
         }
 
@@ -24,14 +20,11 @@ macro_rules! implement_trait_and_macro_for_component{
             (
                 $$struct:ident,
                 $$component_field_name:ident
-                // $(, $($$$sub_type_label:ident),*)?
             ) => {
                 impl $new_trait_name for $$struct {
                     $(
                         fn $method_name(&self$(, $par: $type)*) { 
                             $component_struct_name::$method_name(&self.$$component_field_name$(, $par)*) 
-                            // $component_struct_name::$method_name(&self.$$component_field_name$($(, $sub_type_label_ref:ident)*)?$(, $par)*) 
-                            // $component_struct_name::$method_name(&self.$$component_field_name$(, $(&self.$$$sub_type_label),*)?$(, $par)*) 
                         }
                     )*
                 }
@@ -62,16 +55,13 @@ mod tests {
     pub struct ComponentB {}
     
     impl ComponentB {
-        // pub fn do_third_thing(&self, comp_a: ComponentA) { comp_a.do_thing() }
         pub fn do_third_thing(&self) { println!("Hello from comp B") }
     }
     
     implement_trait_and_macro_for_component!(
         ComponentB, 
         pub B,
-        // (A, a_comp_field), 
         implement_b_based_from_component,
-        // do_third_thing(&self(a_comp_field))
         do_third_thing(&self)
     );
     
@@ -86,12 +76,6 @@ mod tests {
     }
     implement_a_based_from_component!(ContainerB, component_a);
     implement_b_based_from_component!(ContainerB, component_b);
-    // implement_b_based_from_component!(ContainerB, component_b, component_a);
-    
-    // struct ContainerC {
-    //     component_b: ComponentB
-    // }
-    // implement_b_based_from_component!(ContainerC, component_b);
 
     #[test]
     fn it_works() {
